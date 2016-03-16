@@ -31,6 +31,7 @@ class Game:
 		self.col3 = ['c','f','i']
 		self.dia1 = ['a','e','i']
 		self.dia2 = ['c','e','g']
+		self.winning_configurations = (self.row1, self.row2, self.row3, self.col1, self.col2, self.col3, self.dia1, self.dia2)
 
 	def __str__(self):
 		return " %s %s %s" % (self.rcd_values(self.row1, self.ttt),
@@ -43,8 +44,8 @@ class Game:
 			   'g': 0, 'h': 0, 'i': 0}
 
 	# Row, column, or diagonal values.
-	def rcd_values(self,rcd, board):
-		return [board[x] for x in rcd]
+	def rcd_values(self,rcd):
+		return [self.ttt[x] for x in rcd]
 
 	# Present the game board to the human player.
 	def present(self):
@@ -213,14 +214,12 @@ class Game:
 			return 1
 
 
-	# Computer makes move and will grab or block triples; 
 	def play_O(self):
 		self.present()
 		print("Playing an O\n")
 
 		NextMoves = self.all_Moves("O")
 		decision = []
-
 
 		for item in NextMoves:
 			decision.append(item)
@@ -231,10 +230,10 @@ class Game:
 		counter = 0
 		for i in self.ttt:
 			board_copy = copy.deepcopy(self.ttt)
-			self.placeMove(board_copy,i,"O")
-			print("Counter: ", counter)
-			if self.is_space_free(board_copy,counter):
-				if self.winO(board_copy):
+			if self.is_space_free(board_copy,i):
+				self.placeMove(board_copy,i,"O")
+				print("Counter: ", counter)
+				if self.is_winner(board_copy, "O"):
 					print("Will win next move")
 					print("Winning with a ", i)
 					return i
@@ -252,12 +251,14 @@ class Game:
 
 		# check for space in the corners, and take it
 		move = random.choice([0,2,6,8])
-		if move != None and self.is_space_free(self.ttt, move):
+		key_move = self.returnKey(move)
+		if move != None and self.is_space_free(self.ttt, key_move):
 			print("Taking a corner space ", decision[move])
 			return decision[move]
 
 		# If the middle is free, take it
-		if self.is_space_free(self.ttt,4):
+		middle = self.returnKey(4)
+		if self.is_space_free(self.ttt,middle):
 			print("Taking the middle if possible.", decision[4])
 			return decision[4]
 				
@@ -276,7 +277,6 @@ class Game:
 			moves.append(x)
 		return moves
 
-
 	def returnKey(self, index):
 		counter = 0
 		for x in ['a','b','c','d','e','f','g','h','i']:
@@ -288,60 +288,56 @@ class Game:
 	def placeMove(self,board,index, symb):
 		board[index] = symb
 
-
-
-	def is_space_free(self, board, index):
+	def is_space_free(self, board, key):
 		"checks for free space of the board"
-		idx = self.returnKey(index)
 		# print "SPACE %s is taken" % index
-		if(board[idx] == 0):
-			print("Free space at position", index)
-			return True
-		else:
-			print("No free space at position", index)
-			return False
-		return None
-
-
-
+		return board[key] == 0
+		
 
 	# True if there is a full row of symbol 'symb'    
-	def full_row(self,symb,board):
+	def full_row(self,symb):
 		rs = list(3*symb)
-		return rs==self.rcd_values(self.row1, board) or\
-			   rs==self.rcd_values(self.row2, board) or\
-			   rs==self.rcd_values(self.row3, board)
+		return rs==self.rcd_values(self.row1) or\
+			   rs==self.rcd_values(self.row2) or\
+			   rs==self.rcd_values(self.row3)
 
 	# True if there is a full column of symbol 'symb'
-	def full_col(self,symb,board):
+	def full_col(self,symb):
 		rs = list(3*symb)
-		return rs==self.rcd_values(self.col1, board) or\
-			   rs==self.rcd_values(self.col2, board) or\
-			   rs==self.rcd_values(self.col3, board)
+		return rs==self.rcd_values(self.col1) or\
+			   rs==self.rcd_values(self.col2) or\
+			   rs==self.rcd_values(self.col3)
 
 	# True if there is a full diagonal of symbol 'symb'
-	def full_diag(self,symb,board):
+	def full_diag(self,symb):
 		rs = list(3*symb)
-		return rs==self.rcd_values(self.dia1, board) or\
-			   rs==self.rcd_values(self.dia2, board)
+		return rs==self.rcd_values(self.dia1) or\
+			   rs==self.rcd_values(self.dia2)
 
 	# True if X wins
-	def winX(self, board):
-		return self.full_row('X', board) or\
-			   self.full_col('X', board) or\
-			   self.full_diag('X', board)
+	def winX(self):
+		return self.full_row('X') or\
+			   self.full_col('X') or\
+			   self.full_diag('X')
 
 	# True if O wins
-	def winO(self, board):
-		return self.full_row('O', board) or\
-			   self.full_col('O', board) or\
-			   self.full_diag('O', board)
+	def winO(self):
+		return self.full_row('O') or\
+			   self.full_col('O') or\
+			   self.full_diag('O')
 
 	# True if the board is full.
 	def full(self):
-		return not 0 in self.rcd_values(self.row1, self.ttt) and\
-			   not 0 in self.rcd_values(self.row2, self.ttt) and\
-			   not 0 in self.rcd_values(self.row3, self.ttt)
+		return not 0 in self.rcd_values(self.row1) and\
+			   not 0 in self.rcd_values(self.row2) and\
+			   not 0 in self.rcd_values(self.row3)
+
+
+	def is_winner(self, board, marker):	        
+	        for combo in self.winning_configurations:
+	            if (board[combo[0]] == board[combo[1]] == board[combo[2]] == marker):
+	                return True
+	        return False
 
 
 	# Returns key of any row, column, diagonal with
@@ -366,7 +362,7 @@ class Game:
 		
 	# Finds row with two symbs. Return the key to block with opposite symbol.
 	def two_in_row1(self, symb):
-		vals = self.rcd_values(self.row1, self.ttt)
+		vals = self.rcd_values(self.row1)
 		if (vals.count(symb) == 2):
 			for k in self.row1:
 				if self.ttt[k] == 0:
@@ -376,7 +372,7 @@ class Game:
 			return False
 
 	def two_in_row2(self, symb):
-		vals = self.rcd_values(self.row2, self.ttt)
+		vals = self.rcd_values(self.row2)
 		if (vals.count(symb) == 2):
 			for k in self.row2:
 				if self.ttt[k] == 0:
@@ -386,7 +382,7 @@ class Game:
 			return False
 		
 	def two_in_row3(self, symb):
-		vals = self.rcd_values(self.row3, self.ttt)
+		vals = self.rcd_values(self.row3)
 		if (vals.count(symb) == 2):
 			for k in self.row3:
 				if self.ttt[k] == 0:
@@ -396,7 +392,7 @@ class Game:
 			return False
 
 	def two_in_col1(self, symb):
-		vals = self.rcd_values(self.col1, self.ttt)
+		vals = self.rcd_values(self.col1)
 		if (vals.count(symb) == 2):
 			for k in self.col1:
 				if self.ttt[k] == 0:
@@ -406,7 +402,7 @@ class Game:
 			return False
 				
 	def two_in_col2(self, symb):
-		vals = self.rcd_values(self.col2, self.ttt)
+		vals = self.rcd_values(self.col2)
 		if (vals.count(symb) == 2):
 			for k in self.col2:
 				if self.ttt[k] == 0:
@@ -416,7 +412,7 @@ class Game:
 			return False            
 
 	def two_in_col3(self, symb):
-		vals = self.rcd_values(self.col3, self.ttt)
+		vals = self.rcd_values(self.col3)
 		if (vals.count(symb) == 2):
 			for k in self.col3:
 				if self.ttt[k] == 0:
@@ -426,7 +422,7 @@ class Game:
 			return False
 				
 	def two_in_dia1(self, symb):
-		vals = self.rcd_values(self.dia1, self.ttt)
+		vals = self.rcd_values(self.dia1)
 		if (vals.count(symb) == 2):
 			for k in self.dia1:
 				if self.ttt[k] == 0:
@@ -436,7 +432,7 @@ class Game:
 			return False
 				
 	def two_in_dia2(self, symb):
-		vals = self.rcd_values(self.dia2, self.ttt)
+		vals = self.rcd_values(self.dia2)
 		if (vals.count(symb) == 2):
 			for k in self.dia2:
 				if self.ttt[k] == 0:
@@ -454,7 +450,7 @@ class Game:
 			self.placeX()
 
 			# Test the game board state.
-			if self.winX(self.ttt):
+			if self.winX():
 				self.present()
 				print("X, you win!\n\n")
 				break
@@ -467,9 +463,9 @@ class Game:
 			print(computer_move)
 			self.ttt[computer_move] = 'O'
 
-			if self.winO(self.ttt):
+			if self.winO():
 				self.present()
-				print("O wins, you loose!\n\n")
+				print("O wins, you lose!\n\n")
 				break
 			if self.full():
 				self.present()
