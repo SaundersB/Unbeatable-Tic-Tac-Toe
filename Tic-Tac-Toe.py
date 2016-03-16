@@ -15,6 +15,7 @@
 
 
 import random
+import copy
 
 class Game:
 	# Initialize with the tic tac toe game board. I use a map for human-readability ease. 
@@ -32,9 +33,9 @@ class Game:
 		self.dia2 = ['c','e','g']
 
 	def __str__(self):
-		return " %s %s %s" % (self.rcd_values(self.row1),
-							  self.rcd_values(self.row2),
-							  self.rcd_values(self.row3))
+		return " %s %s %s" % (self.rcd_values(self.row1, self.ttt),
+							  self.rcd_values(self.row2, self.ttt),
+							  self.rcd_values(self.row3, self.ttt))
 
 	# Allows us to reset the game board.
 	def reset(self):
@@ -42,8 +43,8 @@ class Game:
 			   'g': 0, 'h': 0, 'i': 0}
 
 	# Row, column, or diagonal values.
-	def rcd_values(self,rcd):
-		return [self.ttt[x] for x in rcd]
+	def rcd_values(self,rcd, board):
+		return [board[x] for x in rcd]
 
 	# Present the game board to the human player.
 	def present(self):
@@ -78,64 +79,269 @@ class Game:
 			else:
 				print ("Can't play there. Choose again:")
 		
+		
+	# return all boards that are next options for player with symb.
+	# for player with symb 
+	def next_moves(self, symb):
+		moves = []
+		for x in ['a','b','c','d','e','f','g','h','i']:
+			if(self.ttt[x] == 0):
+				# can place symbol at position x. 
+				# create a ttt object; make it a duplicate of self;
+				n = Game() 
+
+				for k in ['a','b','c','d','e','f','g','h','i']:
+					n.ttt[k] = self.ttt[k]
+
+				n.ttt[x] = symb
+				moves.append(n)
+		return moves
+
+	def poss_rcds(self, symb):
+			return self.poss_row1(symb) +\
+				   self.poss_row2(symb) +\
+					self.poss_row3(symb) +\
+					self.poss_col1(symb) +\
+					self.poss_col2(symb) +\
+					self.poss_col3(symb) +\
+					self.poss_diag1(symb) +\
+					self.poss_diag2(symb)
+	
+	#return 1 if row1 is still possible for player with symbol.
+	# else return 0
+	def poss_row1(self, symb):
+		r = self.rcd_values(self.row1)
+
+		if (symb == "X" and "O" in r):
+			return 0
+		else:
+			return 1
+		if (symb == "O" and "X" in r):
+			return 0
+		else:
+			return 1
+
+
+	def poss_row2(self, symb):
+		r = self.rcd_values(self.row2)
+
+		if (symb == "X" and "O" in r):
+			return 0
+		else:
+			return 1
+		if (symb == "O" and "X" in r):
+			return 0
+		else:
+			return 1
+
+	def poss_row3(self, symb):
+		r = self.rcd_values(self.row3)
+
+		if (symb == "X" and "O" in r):
+			return 0
+		else:
+			return 1
+		if (symb == "O" and "X" in r):
+			return 0
+		else:
+			return 1
+
+
+	def poss_col1(self, symb):
+		r = self.rcd_values(self.col1)
+
+		if (symb == "X" and "O" in r):
+			return 0
+		else:
+			return 1
+		if (symb == "O" and "X" in r):
+			return 0
+		else:
+			return 1
+
+
+	def poss_col2(self, symb):
+		r = self.rcd_values(self.col2)
+
+		if (symb == "X" and "O" in r):
+			return 0
+		else:
+			return 1
+		if (symb == "O" and "X" in r):
+			return 0
+		else:
+			return 1
+
+
+	def poss_col3(self, symb):
+		r = self.rcd_values(self.col3)
+
+		if (symb == "X" and "O" in r):
+			return 0
+		else:
+			return 1
+		if (symb == "O" and "X" in r):
+			return 0
+		else:
+			return 1
+
+
+
+	def poss_diag1(self, symb):
+		r = self.rcd_values(self.dia1)
+
+		if (symb == "X" and "O" in r):
+			return 0
+		else:
+			return 1
+		if (symb == "O" and "X" in r):
+			return 0
+		else:
+			return 1
+
+
+	def poss_diag2(self, symb):
+		r = self.rcd_values(self.dia2)
+
+		if (symb == "X" and "O" in r):
+			return 0
+		else:
+			return 1
+		if (symb == "O" and "X" in r):
+			return 0
+		else:
+			return 1
+
 
 	# Computer makes move and will grab or block triples; 
 	def play_O(self):
 		self.present()
 		print("Playing an O\n")
-		ko = self.two_in_any('O')
-		if ko:
-			self.ttt[ko] = 'O'  # to win
-		else:
-			kx = self.two_in_any('X')
 
-			if kx:
-				self.ttt[kx] = 'O' # to block
-			else:
-				rest=[]
-				for k in self.ttt.keys():
-					if self.ttt[k] == 0:
-						rest.append(k)
-				pick = random.choice(rest)
-				self.ttt[pick] = 'O'
+		NextMoves = self.all_Moves("O")
+		decision = []
+
+
+		for item in NextMoves:
+			decision.append(item)
+
+		print("Decision:", decision)
+
+		# Checking if player "O" can currently win.
+		counter = 0
+		for i in self.ttt:
+			board_copy = copy.deepcopy(self.ttt)
+			self.placeMove(board_copy,i,"O")
+			print("Counter: ", counter)
+			if self.is_space_free(board_copy,counter):
+				if self.winO(board_copy):
+					print("Will win next move")
+					print("Winning with a ", i)
+					return i
+			counter += 1
+
+
+		
+		# Blocking a possible win
+		block = self.two_in_any("X")
+		print("Block: " , block)
+		if block:
+			print("Blocking a ", block)
+			return block			
+
+
+		# check for space in the corners, and take it
+		move = random.choice([0,2,6,8])
+		if move != None and self.is_space_free(self.ttt, move):
+			print("Taking a corner space ", decision[move])
+			return decision[move]
+
+		# If the middle is free, take it
+		if self.is_space_free(self.ttt,4):
+			print("Taking the middle if possible.", decision[4])
+			return decision[4]
+				
+		# else, take one free space on the sides
+		#return self.choose_random_move(self.sides)
+		remaining_moves = self.next_moves("O")
+		
+		pick = random.choice(remaining_moves)
+		print("Taking a random position ", pick)
+		return pick
+
+
+	def all_Moves(self, symb):
+		moves = []
+		for x in ['a','b','c','d','e','f','g','h','i']:
+			moves.append(x)
+		return moves
+
+
+	def returnKey(self, index):
+		counter = 0
+		for x in ['a','b','c','d','e','f','g','h','i']:
+			if(index == counter):
+				print("Key is:", x)
+				return x
+			counter += 1
+
+	def placeMove(self,board,index, symb):
+		board[index] = symb
+
+
+
+	def is_space_free(self, board, index):
+		"checks for free space of the board"
+		idx = self.returnKey(index)
+		# print "SPACE %s is taken" % index
+		if(board[idx] == 0):
+			print("Free space at position", index)
+			return True
+		else:
+			print("No free space at position", index)
+			return False
+		return None
+
+
+
 
 	# True if there is a full row of symbol 'symb'    
-	def full_row(self,symb):
+	def full_row(self,symb,board):
 		rs = list(3*symb)
-		return rs==self.rcd_values(self.row1) or\
-			   rs==self.rcd_values(self.row2) or\
-			   rs==self.rcd_values(self.row3)
+		return rs==self.rcd_values(self.row1, board) or\
+			   rs==self.rcd_values(self.row2, board) or\
+			   rs==self.rcd_values(self.row3, board)
 
 	# True if there is a full column of symbol 'symb'
-	def full_col(self,symb):
+	def full_col(self,symb,board):
 		rs = list(3*symb)
-		return rs==self.rcd_values(self.col1) or\
-			   rs==self.rcd_values(self.col2) or\
-			   rs==self.rcd_values(self.col3)
+		return rs==self.rcd_values(self.col1, board) or\
+			   rs==self.rcd_values(self.col2, board) or\
+			   rs==self.rcd_values(self.col3, board)
 
 	# True if there is a full diagonal of symbol 'symb'
-	def full_diag(self,symb):
+	def full_diag(self,symb,board):
 		rs = list(3*symb)
-		return rs==self.rcd_values(self.dia1) or\
-			   rs==self.rcd_values(self.dia2)
+		return rs==self.rcd_values(self.dia1, board) or\
+			   rs==self.rcd_values(self.dia2, board)
 
 	# True if X wins
-	def winX(self):
-		return self.full_row('X') or\
-			   self.full_col('X') or\
-			   self.full_diag('X')
+	def winX(self, board):
+		return self.full_row('X', board) or\
+			   self.full_col('X', board) or\
+			   self.full_diag('X', board)
 
 	# True if O wins
-	def winO(self):
-		return self.full_row('O') or\
-			   self.full_col('O') or\
-			   self.full_diag('O')
+	def winO(self, board):
+		return self.full_row('O', board) or\
+			   self.full_col('O', board) or\
+			   self.full_diag('O', board)
 
 	# True if the board is full.
 	def full(self):
-		return not 0 in self.rcd_values(self.row1) and\
-			   not 0 in self.rcd_values(self.row2) and\
-			   not 0 in self.rcd_values(self.row3)
+		return not 0 in self.rcd_values(self.row1, self.ttt) and\
+			   not 0 in self.rcd_values(self.row2, self.ttt) and\
+			   not 0 in self.rcd_values(self.row3, self.ttt)
 
 
 	# Returns key of any row, column, diagonal with
@@ -160,7 +366,7 @@ class Game:
 		
 	# Finds row with two symbs. Return the key to block with opposite symbol.
 	def two_in_row1(self, symb):
-		vals = self.rcd_values(self.row1)
+		vals = self.rcd_values(self.row1, self.ttt)
 		if (vals.count(symb) == 2):
 			for k in self.row1:
 				if self.ttt[k] == 0:
@@ -170,7 +376,7 @@ class Game:
 			return False
 
 	def two_in_row2(self, symb):
-		vals = self.rcd_values(self.row2)
+		vals = self.rcd_values(self.row2, self.ttt)
 		if (vals.count(symb) == 2):
 			for k in self.row2:
 				if self.ttt[k] == 0:
@@ -180,7 +386,7 @@ class Game:
 			return False
 		
 	def two_in_row3(self, symb):
-		vals = self.rcd_values(self.row3)
+		vals = self.rcd_values(self.row3, self.ttt)
 		if (vals.count(symb) == 2):
 			for k in self.row3:
 				if self.ttt[k] == 0:
@@ -190,7 +396,7 @@ class Game:
 			return False
 
 	def two_in_col1(self, symb):
-		vals = self.rcd_values(self.col1)
+		vals = self.rcd_values(self.col1, self.ttt)
 		if (vals.count(symb) == 2):
 			for k in self.col1:
 				if self.ttt[k] == 0:
@@ -200,7 +406,7 @@ class Game:
 			return False
 				
 	def two_in_col2(self, symb):
-		vals = self.rcd_values(self.col2)
+		vals = self.rcd_values(self.col2, self.ttt)
 		if (vals.count(symb) == 2):
 			for k in self.col2:
 				if self.ttt[k] == 0:
@@ -210,7 +416,7 @@ class Game:
 			return False            
 
 	def two_in_col3(self, symb):
-		vals = self.rcd_values(self.col3)
+		vals = self.rcd_values(self.col3, self.ttt)
 		if (vals.count(symb) == 2):
 			for k in self.col3:
 				if self.ttt[k] == 0:
@@ -220,7 +426,7 @@ class Game:
 			return False
 				
 	def two_in_dia1(self, symb):
-		vals = self.rcd_values(self.dia1)
+		vals = self.rcd_values(self.dia1, self.ttt)
 		if (vals.count(symb) == 2):
 			for k in self.dia1:
 				if self.ttt[k] == 0:
@@ -230,7 +436,7 @@ class Game:
 			return False
 				
 	def two_in_dia2(self, symb):
-		vals = self.rcd_values(self.dia2)
+		vals = self.rcd_values(self.dia2, self.ttt)
 		if (vals.count(symb) == 2):
 			for k in self.dia2:
 				if self.ttt[k] == 0:
@@ -248,7 +454,7 @@ class Game:
 			self.placeX()
 
 			# Test the game board state.
-			if self.winX():
+			if self.winX(self.ttt):
 				self.present()
 				print("X, you win!\n\n")
 				break
@@ -257,8 +463,11 @@ class Game:
 				print("It is a tie!\n\n")
 				break
 			
-			self.play_O()
-			if self.winO():
+			computer_move = self.play_O()
+			print(computer_move)
+			self.ttt[computer_move] = 'O'
+
+			if self.winO(self.ttt):
 				self.present()
 				print("O wins, you loose!\n\n")
 				break
