@@ -34,9 +34,9 @@ class Game:
 		self.winning_configurations = (self.row1, self.row2, self.row3, self.col1, self.col2, self.col3, self.dia1, self.dia2)
 
 	def __str__(self):
-		return " %s %s %s" % (self.rcd_values(self.row1, self.ttt),
-							  self.rcd_values(self.row2, self.ttt),
-							  self.rcd_values(self.row3, self.ttt))
+		return " %s %s %s" % (self.rcd_values(self.row1),
+							  self.rcd_values(self.row2),
+							  self.rcd_values(self.row3))
 
 	# Allows us to reset the game board.
 	def reset(self):
@@ -68,6 +68,7 @@ class Game:
 				else:
 					print(self.ttt[row[i]])
 
+
 	# Prompt the user for their move. Verify if move is legal.
 	def placeX(self):
 		self.present()
@@ -79,16 +80,72 @@ class Game:
 				break
 			else:
 				print ("Can't play there. Choose again:")
+
+	# Computer player goes through a series of checks and then decides the best move.
+	# First we always test if we can win. If we cannot we block a possible human player
+	# win. Next we play a random corner. After that if we can we play the middle.
+	# And finally if none of these options are available we play a random available
+	# move.
+	def play_O(self):
+		self.present()
+		print("Playing an O\n")
+
+		NextMoves = self.all_Moves("O")
+		decision = []
+
+		# Decision holds keys.
+		for item in NextMoves:
+			decision.append(item)
+
+		# Checking if player "O" can currently win.
+		counter = 0
+		for i in self.ttt:
+			board_copy = copy.deepcopy(self.ttt)
+			if self.is_space_free(board_copy,i):
+				self.placeMove(board_copy,i,"O")
+				if self.is_winner(board_copy, "O"):
+					print("PLaying winning move")
+					return i
+			counter += 1
+
+		# Blocking a possible human, "X" win
+		block = self.two_in_any("X")
+		if block:
+			print("Blocking human")
+			return block			
+
+		# Play a random corner if available.
+		move = random.choice([0,2,6,8])
+		key_move = self.returnKey(move)
+		if move != None and self.is_space_free(self.ttt, key_move):
+			print("Picking random corner")
+			return key_move
+
+		# Play the middle if it is free
+		middle = self.returnKey(4)
+		if self.is_space_free(self.ttt,middle):
+			print("Playing the middle")
+			return middle
+				
+		# else, take one free space on the sides
+		#return self.choose_random_move(self.sides)
+		pick = random.choice(NextMoves)
+		if self.is_space_free(self.ttt,pick):
+			print("Picking a random move")
+			return pick
+		else:
+			self.play_O()
 		
-		
-	# return all boards that are next options for player with symb.
-	# for player with symb 
+
+
+
+	# Return all moves that are the options for the player with symb.
 	def next_moves(self, symb):
 		moves = []
 		for x in ['a','b','c','d','e','f','g','h','i']:
 			if(self.ttt[x] == 0):
-				# can place symbol at position x. 
-				# create a ttt object; make it a duplicate of self;
+				# We can place symbol at position x. 
+				# Create a game object and duplicate the current game board.
 				n = Game() 
 
 				for k in ['a','b','c','d','e','f','g','h','i']:
@@ -98,6 +155,7 @@ class Game:
 				moves.append(n)
 		return moves
 
+	# Returns all possible rows, columns, and diagonals.
 	def poss_rcds(self, symb):
 			return self.poss_row1(symb) +\
 				   self.poss_row2(symb) +\
@@ -108,8 +166,9 @@ class Game:
 					self.poss_diag1(symb) +\
 					self.poss_diag2(symb)
 	
-	#return 1 if row1 is still possible for player with symbol.
-	# else return 0
+	# Returns 1 for each row, column, and diagonal if it is 
+	# still possible for player with symb.
+	# Else return 0
 	def poss_row1(self, symb):
 		r = self.rcd_values(self.row1)
 
@@ -213,87 +272,31 @@ class Game:
 		else:
 			return 1
 
-
-	def play_O(self):
-		self.present()
-		print("Playing an O\n")
-
-		NextMoves = self.all_Moves("O")
-		decision = []
-
-		for item in NextMoves:
-			decision.append(item)
-
-		print("Decision:", decision)
-
-		# Checking if player "O" can currently win.
-		counter = 0
-		for i in self.ttt:
-			board_copy = copy.deepcopy(self.ttt)
-			if self.is_space_free(board_copy,i):
-				self.placeMove(board_copy,i,"O")
-				print("Counter: ", counter)
-				if self.is_winner(board_copy, "O"):
-					print("Will win next move")
-					print("Winning with a ", i)
-					return i
-			counter += 1
-
-
-		
-		# Blocking a possible win
-		block = self.two_in_any("X")
-		print("Block: " , block)
-		if block:
-			print("Blocking a ", block)
-			return block			
-
-
-		# check for space in the corners, and take it
-		move = random.choice([0,2,6,8])
-		key_move = self.returnKey(move)
-		if move != None and self.is_space_free(self.ttt, key_move):
-			print("Taking a corner space ", decision[move])
-			return decision[move]
-
-		# If the middle is free, take it
-		middle = self.returnKey(4)
-		if self.is_space_free(self.ttt,middle):
-			print("Taking the middle if possible.", decision[4])
-			return decision[4]
-				
-		# else, take one free space on the sides
-		#return self.choose_random_move(self.sides)
-		remaining_moves = self.next_moves("O")
-		
-		pick = random.choice(remaining_moves)
-		print("Taking a random position ", pick)
-		return pick
-
-
+	# Obtain all moves on a game board. 
 	def all_Moves(self, symb):
 		moves = []
 		for x in ['a','b','c','d','e','f','g','h','i']:
 			moves.append(x)
 		return moves
 
+	# Obtain the key from an index in the map.
 	def returnKey(self, index):
 		counter = 0
 		for x in ['a','b','c','d','e','f','g','h','i']:
 			if(index == counter):
-				print("Key is:", x)
 				return x
 			counter += 1
 
+	# Game board independent move function.
 	def placeMove(self,board,index, symb):
 		board[index] = symb
 
+	# Checks the board to see if a given key is free on a given board.
 	def is_space_free(self, board, key):
-		"checks for free space of the board"
-		# print "SPACE %s is taken" % index
-		return board[key] == 0
+		if (board[key] is not None):
+			return board[key] == 0
+		return "Invalid key or board"
 		
-
 	# True if there is a full row of symbol 'symb'    
 	def full_row(self,symb):
 		rs = list(3*symb)
@@ -332,7 +335,7 @@ class Game:
 			   not 0 in self.rcd_values(self.row2) and\
 			   not 0 in self.rcd_values(self.row3)
 
-
+	# Game board independent test if the player has won.
 	def is_winner(self, board, marker):	        
 	        for combo in self.winning_configurations:
 	            if (board[combo[0]] == board[combo[1]] == board[combo[2]] == marker):
@@ -341,7 +344,7 @@ class Game:
 
 
 	# Returns key of any row, column, diagonal with
-	# two symbols where key needs to be blocked/set with O
+	# two symbols where key needs to be blocked/set with symb.
 	# Return False if no two symbols in any row, column, or diagonal.
 	# This allows the computer to determine the best place to play for a win.
 	def two_in_any(self,symb):
