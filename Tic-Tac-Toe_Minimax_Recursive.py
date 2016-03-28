@@ -239,7 +239,6 @@ def minimax_v3(ttt, level, player):
 			score = minimax_v3(ttt, level - 1, "O")
 			if (score < bestScore):
 				bestScore = score
-	print(bestScore)
 	return bestScore
 
 
