@@ -27,6 +27,7 @@ class TicTacToe:
 	def __init__(self, board_pieces = []):
 		self.p1 = "X" # Active Player
 		self.p2 = "O" # Opposing Player
+		self.opponent = "O"
 		self.finished = False
 		self.winner = None
 		self.board_pieces = ['a','b','c','d','e','f','g','h','i'] # Allows us to mirror the game board with letters.
@@ -130,7 +131,11 @@ class TicTacToe:
 				number_or_threes += 1
 		return number_or_threes
 
-
+	def setOpponent(self):
+		if self.p1 == 'X':
+			self.opponent = 'O'
+		else:
+			self.opponent = 'X'
 
 
 def successor(move):

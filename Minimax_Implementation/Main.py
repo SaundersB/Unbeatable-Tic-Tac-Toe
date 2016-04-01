@@ -3,7 +3,7 @@ __author__ = 'bsaunders'
 from TicTacToe import *
 from AI import *
 from Move import Move
-
+import random
 
 # Either obtain the human players move or play the perfect minimax vs. minimax player.
 def enable_AI_vs_AI(enable, ttt):
@@ -12,7 +12,13 @@ def enable_AI_vs_AI(enable, ttt):
 	else:
 		letter = raw_input("Where do you want to play? (a-i): ")
 		board_position = ttt.getBoardIndex(letter)
-	return board_position
+	return int(board_position)
+
+def enable_Random_Move(enable, ttt):
+	if(enable):
+		possible_moves = getSuccessor(ttt)
+		board_position = random.choice(possible_moves)
+	return int(board_position)
 
 
 def gameMain(counter):
@@ -25,7 +31,7 @@ def gameMain(counter):
 		ttt.printGame(ttt)
 
 		# Change False to True to have the game go on automated.
-		board_position = enable_AI_vs_AI(False, ttt)
+		board_position = enable_AI_vs_AI(True, ttt)
 		print("X is moving to position: ", board_position)
 
 		# Place player X's move on the game board.
@@ -35,8 +41,12 @@ def gameMain(counter):
 		print("Computer is making its move...")
 		time.sleep(1) # Simulate thinking
 
+		ttt.setOpponent()
+		ttt.switchPlayers()
+		print("p1 is: ", ttt.p1, " p2 is: ", ttt.p2)
+
 		# Calculate the minimax of both players and select the best move for player O.
-		board_position = partialMinimax(ttt, "O", 0)[0]
+		board_position = partialMinimax(ttt, ttt.p1, 0)[0]
 		score = partialMinimax(ttt, "O", 0)[1]
 		print("O is moving to position: ", board_position, " with score: ", score)
 		ttt.move(board_position)

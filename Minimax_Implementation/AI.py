@@ -191,7 +191,7 @@ def locatedAtTerminalState(ttt, depth):
             # Return a positive number
             return (True, 100)
         # Darn, we lost!
-        elif ttt.testForWin(ttt.p2):
+        elif ttt.testForWin(ttt.opponent):
             # Return a negative number
             return (True, -100)
         # if it's a draw,
