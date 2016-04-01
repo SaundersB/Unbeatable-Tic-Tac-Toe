@@ -2,6 +2,7 @@ __author__ = 'bsaunders'
 
 from Move import Move
 from TicTacToe import *
+import TicTacToe
 
 DEPTHLIMIT = 2
 
@@ -15,49 +16,9 @@ def score(game, depth):
     else:
         return 0
 
-# http://www.progtools.org/games/tutorials/ai_contest/minmax_contest.pdf
-def minimax_recursive(ttt):
-    # Make a copy of the game board for recursive manipulation.
-    new_ttt = TicTacToe()
-    new_ttt = copy.deepcopy(ttt)
 
-    return max(new_ttt)
-
-def min(new_ttt, player):
-    best_move = []
-    moves = getSuccessor(new_ttt)
-    for i in moves:
-        move = max(new_ttt.applyMove(new_ttt, i))
-        if (Value(move) > Value(best_move)):
-            best_move = move;
-    return best_move;
-
-def max(new_ttt):
-    new_ttt = TicTacToe()
-    new_ttt = copy.deepcopy(ttt)
-
-    if new_ttt.finished:
-        return score(new_ttt)
-
-    #if (GameEnded(ttt)):
-    #   return EvalGameState(ttt);
-    
-    else:
-        best_move = []
-        #moves = GenerateMoves(ttt)
-        moves = successor(new_ttt)
-        for i in moves:
-            move = min(applyMove(new_ttt))
-            if (Value(move) > Value(best_move)):
-                best_move = move
-        
-        return best_move;
-    
-
-
-
-
-def minimax(ttt):
+# Original Minimax Algorithm
+def original_minimax(ttt):
     if ttt.finished:
         return -1
 
@@ -140,7 +101,7 @@ def fullMinimax(ttt, player):
     elif new_ttt.testForWin(new_ttt.p2):
         return (-1,-1)
     
-    elif new_ttt.testBoardFull(new_ttt):
+    elif new_ttt.testBoardFull():
         return (0,0)
 
     # Create a list of possible moves
@@ -184,33 +145,30 @@ def fullMinimax(ttt, player):
 
 
 
-def locatedAtTerminalState(ttt, depth):
-        global DEPTH_LIMIT
-        # Yay, we won!
-        if ttt.testForWin(ttt.p1):
-            # Return a positive number
-            return (True, 100)
-        # Darn, we lost!
-        elif ttt.testForWin(ttt.opponent):
-            # Return a negative number
-            return (True, -100)
-        # if it's a draw,
-        elif (ttt.testBoardFull(ttt)):
-            # return the value 0
-            return (True, 0)
-        # if we've hit our depth limit
-        elif (depth >= DEPTHLIMIT):
-            # use the evaluation function to return a value for this state
-            return (True, ttt.evaluateBoard())
-        return (False, 0)
+
+class Minimax():
+    def __init__(self, ttt, playerName):
+        self.ttt = ttt
+        self.player = playerName
+
+    def move(self, ttt):
+         # Computer move "O"
+        print("Computer is making its move...")
+        time.sleep(1) # Simulate thinking
+
+        # Calculate the minimax of both players and select the best move for player O.
+        board_position = self.partialMinimax(ttt, self.player, 0)[0]
+        score = self.partialMinimax(ttt, "O", 0)[1]
+        print("O is moving to position: ", board_position, " with score: ", score)
+        return board_position
 
 
-def partialMinimax(ttt, player, depth):
+    def partialMinimax(self, ttt, player, depth):
         new_ttt = copy.deepcopy(ttt)
         start = Move(new_ttt, 0, new_ttt.p1, new_ttt.p2)
 
         # check to see if we are at a terminal state - someone won, the ttt is full or we hit our search limit
-        terminalTuple = locatedAtTerminalState(new_ttt, depth)
+        terminalTuple = self.locatedAtTerminalState(new_ttt, depth)
         # if we are at a terminal state
         if terminalTuple[0] == True:
             # return the value of this state
@@ -225,9 +183,9 @@ def partialMinimax(ttt, player, depth):
             # loop through all possible moves
             for m in possibleMoves:
                 # make the move
-                new_ttt.placeMove(new_ttt, m.position, player)
+                new_ttt.placeMove(m.position, player)
                 # get the minimax vaue of the resulting state
-                minimax = partialMinimax(new_ttt, new_ttt.p2, depth+1)
+                minimax = self.partialMinimax(new_ttt, new_ttt.p2, depth+1)
                 # is this move better than any other moves we found?
                 if bestScore < minimax[1]:
                     # save the move...
@@ -243,9 +201,9 @@ def partialMinimax(ttt, player, depth):
             # consider all possible moves
             for m in possibleMoves:
                 # make the move
-                new_ttt.placeMove(new_ttt, m.position, player)
+                new_ttt.placeMove(m.position, player)
                 # get the minimax vaue of the resulting state
-                minimax = partialMinimax(new_ttt, new_ttt.p1, depth+1)
+                minimax = self.partialMinimax(new_ttt, new_ttt.p1, depth+1)
                 # is this better (for our opponent) than any other moves we found?
                 if bestScore > minimax[1]:
                     # save the move...
@@ -256,3 +214,60 @@ def partialMinimax(ttt, player, depth):
                 new_ttt.removeMove(new_ttt, m.position)
         # return the best move and best score we found for this state
         return (bestMove.position, bestScore)
+
+
+
+    def locatedAtTerminalState(self, ttt, depth):
+        global DEPTH_LIMIT
+        # Yay, we won!
+        if ttt.testForWin(ttt.p1):
+            # Return a positive number
+            return (True, 100)
+        # Darn, we lost!
+        elif ttt.testForWin(ttt.opponent):
+            # Return a negative number
+            return (True, -100)
+        # if it's a draw,
+        elif (ttt.testBoardFull()):
+            # return the value 0
+            return (True, 0)
+        # if we've hit our depth limit
+        elif (depth >= DEPTHLIMIT):
+            # use the evaluation function to return a value for this state
+            return (True, ttt.evaluateBoard())
+        return (False, 0)
+
+
+class Player():
+    def __init__(self, playerName):
+        # name of this player - either X or O
+        self.player = playerName
+        # name of player's opponent
+        if playerName == 'X':
+            self.opponent = 'O'
+        else:
+            self.opponent = 'X'
+
+    def move(self, ttt):        
+        '''
+        # Enable to allow user input.
+        letter = raw_input("Where do you want to play? (a-i): ")
+        board_position = ttt.getBoardIndex(letter)
+        '''
+        board_position = enable_AI_vs_AI(True, ttt)
+        print("X is moving to position: ", board_position)            
+
+        return int(board_position)
+
+# Either obtain the human players move or play the perfect minimax vs. minimax player.
+def enable_AI_vs_AI(enable, ttt):
+    if(enable):
+        board_position = original_minimax(ttt)
+    return int(board_position)
+
+def enable_Random_Move(enable, ttt):
+    if(enable):
+        possible_moves = getSuccessor(ttt)
+        board_position = random.choice(possible_moves)
+    return int(board_position)
+

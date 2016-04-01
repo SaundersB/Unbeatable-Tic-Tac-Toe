@@ -1,55 +1,41 @@
 __author__ = 'bsaunders'
 
 from TicTacToe import *
-from AI import *
 from Move import Move
 import random
+from AI import Player
+from AI import Minimax
 
-# Either obtain the human players move or play the perfect minimax vs. minimax player.
-def enable_AI_vs_AI(enable, ttt):
-	if(enable):
-		board_position = minimax(ttt)
+def swapPlayer(current_player, player_1, player_2):
+	if (current_player is player_1):
+		return player_2
 	else:
-		letter = raw_input("Where do you want to play? (a-i): ")
-		board_position = ttt.getBoardIndex(letter)
-	return int(board_position)
-
-def enable_Random_Move(enable, ttt):
-	if(enable):
-		possible_moves = getSuccessor(ttt)
-		board_position = random.choice(possible_moves)
-	return int(board_position)
+		return player_1
 
 
 def gameMain(counter):
 	global number_of_game_losses, number_of_game_wons, number_of_ties, total_number_of_games
 	counter += 1
 	ttt = TicTacToe()
+	player_1 = Player("X")
+	player_2 = Minimax(ttt, "O")
+	current_player = player_1
 
 	# Game Loop
 	while not ttt.finished:
+		# Draw the game board.
 		ttt.printGame(ttt)
 
-		# Change False to True to have the game go on automated.
-		board_position = enable_AI_vs_AI(True, ttt)
-		print("X is moving to position: ", board_position)
+		print("Current player is: ", current_player.player)
 
-		# Place player X's move on the game board.
-		ttt.move(board_position)
+		board_position = current_player.move(ttt)
+		
+		ttt.placeMove(board_position, current_player.player)
 
-		# Computer move "O"
-		print("Computer is making its move...")
-		time.sleep(1) # Simulate thinking
+		ttt.testForWin(current_player)
+		ttt.testBoardFull()
 
-		ttt.setOpponent()
-		ttt.switchPlayers()
-		print("p1 is: ", ttt.p1, " p2 is: ", ttt.p2)
-
-		# Calculate the minimax of both players and select the best move for player O.
-		board_position = partialMinimax(ttt, ttt.p1, 0)[0]
-		score = partialMinimax(ttt, "O", 0)[1]
-		print("O is moving to position: ", board_position, " with score: ", score)
-		ttt.move(board_position)
+		current_player = swapPlayer(current_player, player_1, player_2)
 
 	# Present Results, increment the game statistics
 	if ttt.winner == "X":
