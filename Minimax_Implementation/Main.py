@@ -1,5 +1,21 @@
 __author__ = 'bsaunders'
 
+#!/bin/py
+# Brandon Saunders
+# 3/18/2016
+# Written in Python. This game will be an 'unbeatable' version of the classic Tic-Tac-Toe.
+# The human player will face off an 'unbeatable' computer player or alternatively the computer
+# can play the computer.
+# This is an adversarial, zero sum game. 
+# Requirements:
+# - allow for a human player
+# - play against a computer player
+# - have some user interface (text is fine)
+# - never lose and win whenever possible
+# Human player will play as "X"
+# Computer will play as "O"
+# Please run this program with Python v2.7. This program does not fully support Python v3. 
+
 from TicTacToe import *
 from Move import Move
 import random
@@ -20,6 +36,8 @@ def gameMain(counter):
 	player_1 = Player("X")
 	player_2 = Minimax(ttt, "O")
 	current_player = player_1
+
+	print("-----------Starting game------------")
 
 	# Game Loop
 	while not ttt.finished:
@@ -59,6 +77,8 @@ def gameMain(counter):
 	print("Loses: ", number_of_game_wons)
 	print("Ties: ", number_of_ties)
 	print("Total Games: ", total_number_of_games)
+
+	print("------------Ending game-------------\n")
 
 	# Recursively restart the game
 	gameMain(counter)

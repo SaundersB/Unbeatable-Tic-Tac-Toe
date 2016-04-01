@@ -1,19 +1,3 @@
-#!/bin/py
-# Brandon Saunders
-# 3/18/2016
-# Written in Python. This game will be an 'unbeatable' version of the classic Tic-Tac-Toe.
-# The human player will face off an 'unbeatable' computer player or alternatively the computer
-# can play the computer.
-# This is an adversarial, zero sum game. 
-# Requirements:
-# - allow for a human player
-# - play against a computer player
-# - have some user interface (text is fine)
-# - never lose and win whenever possible
-# Human player will play as "X"
-# Computer will play as "O"
-# Please run this program with Python v2.7. This program does not fully support Python v3. 
-
 __author__ = 'bsaunders'
 
 

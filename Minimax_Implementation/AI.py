@@ -3,6 +3,7 @@ __author__ = 'bsaunders'
 from Move import Move
 from TicTacToe import *
 import TicTacToe
+import random
 
 DEPTHLIMIT = 2
 
@@ -151,10 +152,17 @@ class Minimax():
         self.ttt = ttt
         self.player = playerName
 
+        if self.player == 'X':
+            self.opponent = 'O'
+        else:
+            self.opponent = 'X'
+
     def move(self, ttt):
          # Computer move "O"
         print("Computer is making its move...")
         time.sleep(1) # Simulate thinking
+
+        print("Player O using the partial minimax algorithm...")
 
         # Calculate the minimax of both players and select the best move for player O.
         board_position = self.partialMinimax(ttt, self.player, 0)[0]
@@ -176,7 +184,7 @@ class Minimax():
         # get all open spaces
         possibleMoves = successor(start)
         # are we considering our move or our opponent's move
-        if new_ttt.p1 == player:
+        if self.player == player:
             # if it's our move, we want to find the move with the highest number, so start with low numbers
             bestMove = -1
             bestScore = -1000
@@ -185,7 +193,7 @@ class Minimax():
                 # make the move
                 new_ttt.placeMove(m.position, player)
                 # get the minimax vaue of the resulting state
-                minimax = self.partialMinimax(new_ttt, new_ttt.p2, depth+1)
+                minimax = self.partialMinimax(new_ttt, self.opponent, depth+1)
                 # is this move better than any other moves we found?
                 if bestScore < minimax[1]:
                     # save the move...
@@ -203,7 +211,7 @@ class Minimax():
                 # make the move
                 new_ttt.placeMove(m.position, player)
                 # get the minimax vaue of the resulting state
-                minimax = self.partialMinimax(new_ttt, new_ttt.p1, depth+1)
+                minimax = self.partialMinimax(new_ttt, self.player, depth+1)
                 # is this better (for our opponent) than any other moves we found?
                 if bestScore > minimax[1]:
                     # save the move...
@@ -220,11 +228,11 @@ class Minimax():
     def locatedAtTerminalState(self, ttt, depth):
         global DEPTH_LIMIT
         # Yay, we won!
-        if ttt.testForWin(ttt.p1):
+        if ttt.testForWin(self.player):
             # Return a positive number
             return (True, 100)
         # Darn, we lost!
-        elif ttt.testForWin(ttt.opponent):
+        elif ttt.testForWin(self.opponent):
             # Return a negative number
             return (True, -100)
         # if it's a draw,
@@ -254,7 +262,8 @@ class Player():
         letter = raw_input("Where do you want to play? (a-i): ")
         board_position = ttt.getBoardIndex(letter)
         '''
-        board_position = enable_AI_vs_AI(True, ttt)
+        print("Player X is taking their turn...")
+        board_position = enable_Random_Move(True, ttt)
         print("X is moving to position: ", board_position)            
 
         return int(board_position)
@@ -267,7 +276,8 @@ def enable_AI_vs_AI(enable, ttt):
 
 def enable_Random_Move(enable, ttt):
     if(enable):
-        possible_moves = getSuccessor(ttt)
+        moves = Move(ttt, 0, ttt.p1, ttt.p2)
+        possible_moves = successor(moves)
         board_position = random.choice(possible_moves)
-    return int(board_position)
+    return int(board_position.position)
 
