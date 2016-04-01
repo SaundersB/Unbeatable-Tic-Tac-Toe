@@ -16,7 +16,7 @@ class TicTacToe:
 					   [0, 3, 6], [1, 4, 7], [2, 5, 8], \
 					   [0, 4, 8], [2, 4, 6]]
 
-	def printGame(self, ttt):
+	def printGame(self):
 		print("\n")
 		# Print out letters [a-i] for easy viewing and selection.
 		print (" %s %s %s " % (self.board_pieces[0], self.board_pieces[1], self.board_pieces[2]))
@@ -56,16 +56,14 @@ class TicTacToe:
 		self.board[position] = player
 		self.board_pieces[position] = player
 
-		self.testForWin(player)
-		self.testBoardFull()
 
 
-	def removeMove(self, ttt, position):
-		if ttt.board[position] == None:
+	def removeMove(self, position):
+		if self.board[position] == None:
 			return
 
-		ttt.board[position] = None
-		ttt.board_pieces[position] = ttt.getBoardIndex(position)
+		self.board[position] = None
+		self.board_pieces[position] = self.getBoardIndex(position)
 
 
 	# Test if there is a win.

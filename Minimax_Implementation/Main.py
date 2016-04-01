@@ -42,13 +42,14 @@ def gameMain(counter):
 	# Game Loop
 	while not ttt.finished:
 		# Draw the game board.
-		ttt.printGame(ttt)
+		ttt.printGame()
 
 		print("Current player is: ", current_player.playerName)
 
 		board_position = current_player.move(ttt)
+		position = int(board_position.position)
 		
-		ttt.placeMove(board_position, current_player.playerName)
+		ttt.placeMove(position, current_player.playerName)
 
 		ttt.testForWin(current_player.playerName)
 		ttt.testBoardFull()
@@ -58,17 +59,17 @@ def gameMain(counter):
 	# Present Results, increment the game statistics
 	if ttt.winner == "X":
 		print("You won!")
-		ttt.printGame(ttt)
+		ttt.printGame()
 		number_of_game_losses += 1
 
 	elif ttt.winner == "O":
 		print("You Lost!")
-		ttt.printGame(ttt)
+		ttt.printGame()
 		number_of_game_wons += 1
 
 	else:
 		print("It's a tie!")
-		ttt.printGame(ttt)
+		ttt.printGame()
 		number_of_ties += 1
 
 	total_number_of_games += 1
