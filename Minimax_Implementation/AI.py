@@ -74,8 +74,14 @@ class Minimax():
         # print("Player O using the full minimax algorithm...")
         #board_position = self.fullMinimax(ttt, self.playerName)[0]
         #score = self.fullMinimax(ttt, self.playerName)[1]
-        return board_position
-        
+        if(isinstance(board_position, int)):
+            print("Move is: ", str(board_position))
+            return board_position
+        else: 
+            print("Move is: ", str(board_position.position))
+            return board_position.position
+
+
 
 
     def partialMinimax(self, ttt, player, depth):
@@ -281,7 +287,7 @@ class Player():
             self.opponent = 'X'
 
     def move(self, ttt):        
-        '''
+        
         # Enable to allow user input.
         letter = raw_input("Where do you want to play? (a-i): ")
         board_position = ttt.getBoardIndex(letter)
@@ -289,7 +295,7 @@ class Player():
         print("Player X is taking their turn...")
         board_position = enable_Random_Move(True, ttt)
         print("X is moving to position: ", board_position.position)            
-
+        '''
         return board_position
 
 # Either obtain the human players move or play the perfect minimax vs. minimax player.

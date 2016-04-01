@@ -47,7 +47,7 @@ def gameMain(counter):
 		print("Current player is: ", current_player.playerName)
 
 		board_position = current_player.move(ttt)
-		position = int(board_position.position)
+		position = int(board_position)
 		
 		ttt.placeMove(position, current_player.playerName)
 
