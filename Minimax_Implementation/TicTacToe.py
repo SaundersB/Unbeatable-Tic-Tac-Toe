@@ -17,7 +17,6 @@
 __author__ = 'bsaunders'
 
 
-
 import copy
 import time
 
@@ -64,20 +63,20 @@ class TicTacToe:
 			self.board_pieces[position] = self.p1
 
 		self.testForWin(self.p1)
-		self.testBoardFull(self.board)
+		self.testBoardFull()
 
-		self.switchPlayers()
+		#self.switchPlayers()
 
 
-	def placeMove(self, ttt, position, player):
-		if ttt.board[position] != None:
+	def placeMove(self, position, player):
+		if self.board[position] != None:
 			return
 
-		ttt.board[position] = player
-		ttt.board_pieces[position] = player
+		self.board[position] = player
+		self.board_pieces[position] = player
 
 		self.testForWin(player)
-		self.testBoardFull(ttt.board)
+		self.testBoardFull()
 
 
 	def removeMove(self, ttt, position):
@@ -108,7 +107,7 @@ class TicTacToe:
 			counter += 1
 		return index
 
-	def testBoardFull(self, board):
+	def testBoardFull(self):
 		# Check if the board is exhausted
 		empty_count = 0
 		for position in self.board:
