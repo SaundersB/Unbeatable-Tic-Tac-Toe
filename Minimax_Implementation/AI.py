@@ -150,9 +150,9 @@ def fullMinimax(ttt, player):
 class Minimax():
     def __init__(self, ttt, playerName):
         self.ttt = ttt
-        self.player = playerName
+        self.playerName = playerName
 
-        if self.player == 'X':
+        if self.playerName == 'X':
             self.opponent = 'O'
         else:
             self.opponent = 'X'
@@ -165,7 +165,7 @@ class Minimax():
         print("Player O using the partial minimax algorithm...")
 
         # Calculate the minimax of both players and select the best move for player O.
-        board_position = self.partialMinimax(ttt, self.player, 0)[0]
+        board_position = self.partialMinimax(ttt, self.playerName, 0)[0]
         score = self.partialMinimax(ttt, "O", 0)[1]
         print("O is moving to position: ", board_position, " with score: ", score)
         return board_position
@@ -184,7 +184,7 @@ class Minimax():
         # get all open spaces
         possibleMoves = successor(start)
         # are we considering our move or our opponent's move
-        if self.player == player:
+        if self.playerName == player:
             # if it's our move, we want to find the move with the highest number, so start with low numbers
             bestMove = -1
             bestScore = -1000
@@ -211,7 +211,7 @@ class Minimax():
                 # make the move
                 new_ttt.placeMove(m.position, player)
                 # get the minimax vaue of the resulting state
-                minimax = self.partialMinimax(new_ttt, self.player, depth+1)
+                minimax = self.partialMinimax(new_ttt, self.playerName, depth+1)
                 # is this better (for our opponent) than any other moves we found?
                 if bestScore > minimax[1]:
                     # save the move...
@@ -228,7 +228,7 @@ class Minimax():
     def locatedAtTerminalState(self, ttt, depth):
         global DEPTH_LIMIT
         # Yay, we won!
-        if ttt.testForWin(self.player):
+        if ttt.testForWin(self.playerName):
             # Return a positive number
             return (True, 100)
         # Darn, we lost!
@@ -249,7 +249,7 @@ class Minimax():
 class Player():
     def __init__(self, playerName):
         # name of this player - either X or O
-        self.player = playerName
+        self.playerName = playerName
         # name of player's opponent
         if playerName == 'X':
             self.opponent = 'O'

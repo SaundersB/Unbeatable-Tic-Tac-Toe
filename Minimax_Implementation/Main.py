@@ -44,13 +44,13 @@ def gameMain(counter):
 		# Draw the game board.
 		ttt.printGame(ttt)
 
-		print("Current player is: ", current_player.player)
+		print("Current player is: ", current_player.playerName)
 
 		board_position = current_player.move(ttt)
 		
-		ttt.placeMove(board_position, current_player.player)
+		ttt.placeMove(board_position, current_player.playerName)
 
-		ttt.testForWin(current_player)
+		ttt.testForWin(current_player.playerName)
 		ttt.testBoardFull()
 
 		current_player = swapPlayer(current_player, player_1, player_2)
