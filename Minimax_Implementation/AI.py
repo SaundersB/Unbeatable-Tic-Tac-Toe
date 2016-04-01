@@ -8,16 +8,6 @@ import random
 DEPTHLIMIT = 2
 
 
-def score(game, depth):
-    print("Score being called: ")
-    if game.testForWin("O"):
-        return 10 - depth
-    elif game.testForWin("X"):
-        return depth - 10
-    else:
-        return 0
-
-
 # Original Minimax Algorithm
 def original_minimax(ttt):
     if ttt.finished:
@@ -54,98 +44,6 @@ def original_minimax(ttt):
     return moves[0].position
 
 
-# Heurisitic minimax. Searches for the best of all possible moves each turn.
-def minimax_v2(ttt):
-    if ttt.finished:
-        return -1
-
-    start = Move(ttt, 0, ttt.p1, ttt.p2)
-
-    # Create a list of possible moves
-    moves = successor(start)
-
-    # Determine the mins of each move
-    for m in moves:
-        print("Available move: ", m.position)
-        if (m.ttt.finished):
-            # Return a winning position
-            if m.ttt.winner == m.p1:
-                return m.position
-
-            m.quality = evaluate(m)
-        else:
-            # Will check all possible moves    
-            responses = successor(m)
-
-            for r in responses:
-                r.quality = evaluate(r)
-                
-            responses.sort()
-            print("Responses: ", responses)
-            m.quality = responses[0].quality
-
-
-    # Select the max of mins
-    moves.sort()
-    moves.reverse()
-    #print("Max of mins: ", moves[0].position)
-    return moves[0].position
-
-
-def fullMinimax(ttt, player):
-    new_ttt = copy.deepcopy(ttt)
-    start = Move(new_ttt, 0, new_ttt.p1, new_ttt.p2)
-
-    if new_ttt.testForWin(new_ttt.p1):
-        return (1,1)
-
-    elif new_ttt.testForWin(new_ttt.p2):
-        return (-1,-1)
-    
-    elif new_ttt.testBoardFull():
-        return (0,0)
-
-    # Create a list of possible moves
-    moves = successor(start)
-    bestMove = -1
-    bestScore = -1000
-
-    if player == new_ttt.p1:
-       
-        for m in moves:
-            new_ttt.printGame(new_ttt)
-            new_ttt.placeMove(new_ttt, m, player)
-            minimax = fullMinimax(new_ttt, new_ttt.p2)
-            new_ttt.printGame(new_ttt)
-
-
-            if bestScore < minimax[1]:
-                bestMove = m 
-                bestScore = minimax[1] 
-
-            new_ttt.removeMove(new_ttt, m)
-
-    else:
-
-        for m in moves:
-            new_ttt.printGame(new_ttt)
-            ttt.placeMove(new_ttt, m, player)
-            minimax = fullMinimax(new_ttt, new_ttt.p1)
-            new_ttt.printGame(new_ttt)
-
-            if bestScore > minimax[1]:
-                bestMove = m 
-                bestScore = minimax[1]
-
-            new_ttt.removeMove(new_ttt, m)
-    print("Best Score is: ", bestScore)
-    return (bestMove, bestScore)
-
-
-
-
-
-
 
 class Minimax():
     def __init__(self, ttt, playerName):
@@ -165,8 +63,13 @@ class Minimax():
         print("Player O using the partial minimax algorithm...")
 
         # Calculate the minimax of both players and select the best move for player O.
-        board_position = self.partialMinimax(ttt, self.playerName, 0)[0]
-        score = self.partialMinimax(ttt, "O", 0)[1]
+        #board_position = self.partialMinimax(ttt, self.playerName, 0)[0]
+        #score = self.partialMinimax(ttt, self.playerName, 0)[1]
+
+        board_position = self.fullMinimax(ttt, self.playerName)[0]
+        score = self.fullMinimax(ttt, self.playerName)[1]
+
+
         print("O is moving to position: ", board_position, " with score: ", score)
         return board_position
 
@@ -246,6 +149,53 @@ class Minimax():
         return (False, 0)
 
 
+    def fullMinimax(self, ttt, player):
+        new_ttt = copy.deepcopy(ttt)
+        start = Move(new_ttt, 0, new_ttt.p1, new_ttt.p2)
+
+        if new_ttt.testForWin(self.playerName):
+            return (1,1)
+
+        elif new_ttt.testForWin(self.opponent):
+            return (-1,-1)
+        
+        elif new_ttt.testBoardFull():
+            return (0,0)
+
+        # Create a list of possible moves
+        moves = successor(start)
+        bestMove = -1
+        bestScore = -1000
+
+        if player == self.playerName:
+            for m in moves:
+                #new_ttt.printGame(new_ttt)
+                new_ttt.placeMove(m.position, player)
+                minimax = self.fullMinimax(new_ttt, self.opponent)
+                #new_ttt.printGame(new_ttt)
+
+                if bestScore < minimax[1]:
+                    bestMove = m 
+                    bestScore = minimax[1] 
+
+                new_ttt.removeMove(new_ttt, m.position)
+        else:
+            for m in moves:
+                #new_ttt.printGame(new_ttt)
+                new_ttt.placeMove(m.position, player)
+                minimax = self.fullMinimax(new_ttt, self.playerName)
+                #new_ttt.printGame(new_ttt)
+
+                if bestScore > minimax[1]:
+                    bestMove = m 
+                    bestScore = minimax[1]
+
+                new_ttt.removeMove(new_ttt, m.position)
+
+        print("Best Score is: ", bestScore)
+        return (bestMove, bestScore)
+
+
 class Player():
     def __init__(self, playerName):
         # name of this player - either X or O
@@ -281,3 +231,60 @@ def enable_Random_Move(enable, ttt):
         board_position = random.choice(possible_moves)
     return int(board_position.position)
 
+
+
+
+
+
+
+# Heurisitic minimax. Searches for the best of all possible moves each turn.
+def minimax_v2(ttt):
+    if ttt.finished:
+        return -1
+
+    start = Move(ttt, 0, ttt.p1, ttt.p2)
+
+    # Create a list of possible moves
+    moves = successor(start)
+
+    # Determine the mins of each move
+    for m in moves:
+        print("Available move: ", m.position)
+        if (m.ttt.finished):
+            # Return a winning position
+            if m.ttt.winner == m.p1:
+                return m.position
+
+            m.quality = evaluate(m)
+        else:
+            # Will check all possible moves    
+            responses = successor(m)
+
+            for r in responses:
+                r.quality = evaluate(r)
+                
+            responses.sort()
+            print("Responses: ", responses)
+            m.quality = responses[0].quality
+
+
+    # Select the max of mins
+    moves.sort()
+    moves.reverse()
+    #print("Max of mins: ", moves[0].position)
+    return moves[0].position
+
+
+
+
+
+
+
+def score(game, depth):
+    print("Score being called: ")
+    if game.testForWin("O"):
+        return 10 - depth
+    elif game.testForWin("X"):
+        return depth - 10
+    else:
+        return 0

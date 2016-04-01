@@ -1,9 +1,6 @@
 __author__ = 'bsaunders'
-
-
 import copy
 import time
-
 
 
 class TicTacToe:
