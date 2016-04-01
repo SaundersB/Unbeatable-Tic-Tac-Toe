@@ -209,7 +209,6 @@ def partialMinimax(ttt, player, depth):
         new_ttt = copy.deepcopy(ttt)
         start = Move(new_ttt, 0, new_ttt.p1, new_ttt.p2)
 
-
         # check to see if we are at a terminal state - someone won, the ttt is full or we hit our search limit
         terminalTuple = locatedAtTerminalState(new_ttt, depth)
         # if we are at a terminal state
@@ -226,7 +225,7 @@ def partialMinimax(ttt, player, depth):
             # loop through all possible moves
             for m in possibleMoves:
                 # make the move
-                new_ttt.placeMove(new_ttt, m, player)
+                new_ttt.placeMove(new_ttt, m.position, player)
                 # get the minimax vaue of the resulting state
                 minimax = partialMinimax(new_ttt, new_ttt.p2, depth+1)
                 # is this move better than any other moves we found?
@@ -244,7 +243,7 @@ def partialMinimax(ttt, player, depth):
             # consider all possible moves
             for m in possibleMoves:
                 # make the move
-                new_ttt.placeMove(new_ttt, m, player)
+                new_ttt.placeMove(new_ttt, m.position, player)
                 # get the minimax vaue of the resulting state
                 minimax = partialMinimax(new_ttt, new_ttt.p1, depth+1)
                 # is this better (for our opponent) than any other moves we found?
@@ -256,4 +255,4 @@ def partialMinimax(ttt, player, depth):
                 # undo the move
                 new_ttt.removeMove(new_ttt, m)
         # return the best move and best score we found for this state
-        return (bestMove, bestScore)
+        return (bestMove.position, bestScore)

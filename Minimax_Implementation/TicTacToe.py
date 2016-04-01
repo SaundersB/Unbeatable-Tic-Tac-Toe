@@ -65,17 +65,16 @@ class TicTacToe:
 			self.testForWin(self.p1)
 			self.testBoardFull(self.board)
 
-			#self.switchPlayers()
 
-	def placeMove(self, ttt, move, player):
-		if ttt.board[move.position] != None:
+	def placeMove(self, ttt, position, player):
+		if ttt.board[position] != None:
 			return
 
-		ttt.board[move.position] = player
-		ttt.board_pieces[move.position] = player
+		ttt.board[position] = player
+		ttt.board_pieces[position] = player
 
-		ttt.testForWin(player)
-		ttt.testBoardFull(ttt.board)
+		self.testForWin(player)
+		self.testBoardFull(ttt.board)
 
 
 	def removeMove(self, ttt, move):
