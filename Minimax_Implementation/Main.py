@@ -26,7 +26,7 @@ def gameMain(counter):
 		# Draw the game board.
 		ttt.printGame(ttt)
 
-		print("Current player is: ", current_player)
+		print("Current player is: ", current_player.player)
 
 		board_position = current_player.move(ttt)
 		
