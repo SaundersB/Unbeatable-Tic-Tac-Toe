@@ -1,3 +1,4 @@
+__author__ = 'bsaunders'
 
 from TicTacToe import *
 from AI import *
@@ -24,7 +25,8 @@ def gameMain(counter):
 		ttt.printGame(ttt)
 
 		# Change False to True to have the game go on automated.
-		board_position = enable_AI_vs_AI(True, ttt)
+		board_position = enable_AI_vs_AI(False, ttt)
+		print("X is moving to position: ", board_position)
 
 		# Place player X's move on the game board.
 		ttt.move(board_position)
@@ -34,9 +36,9 @@ def gameMain(counter):
 		time.sleep(1) # Simulate thinking
 
 		# Calculate the minimax of both players and select the best move for player O.
-		board_position = minimax_v3(ttt, 2, "O")
-		print("Board position: ", board_position)
-		#ttt.move(board_position)
+		board_position = partialMinimax(ttt, "O", 0)[0]
+		print("O is moving to position: ", board_position.position)
+		ttt.placeMove(ttt, board_position, "O")
 
 	# Present Results, increment the game statistics
 	if ttt.winner == "X":
@@ -53,6 +55,9 @@ def gameMain(counter):
 		print("It's a tie!")
 		ttt.printGame(ttt)
 		number_of_ties += 1
+
+		# Switch players
+		ttt.switchPlayers()
 
 	total_number_of_games += 1
 

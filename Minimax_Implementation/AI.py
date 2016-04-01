@@ -1,12 +1,17 @@
+__author__ = 'bsaunders'
+
 from Move import Move
 from TicTacToe import *
 
+DEPTHLIMIT = 2
 
-def score(game):
-    if game.winner == "O":
-        return 1
-    elif game.winner != "O":
-        return -1
+
+def score(game, depth):
+    print("Score being called: ")
+    if game.testForWin("O"):
+        return 10 - depth
+    elif game.testForWin("X"):
+        return depth - 10
     else:
         return 0
 
@@ -69,7 +74,8 @@ def minimax(ttt):
                 return m.position
 
             m.quality = evaluate(m)
-        else:    
+        else:
+            # Will check all possible moves    
             responses = successor(m)
 
             for r in responses:
@@ -86,172 +92,143 @@ def minimax(ttt):
     return moves[0].position
 
 
-# http://www.pressibus.org/ataxx/autre/minimax/node2.html
-def minimax_v2(ttt, depth, max_depth, the_score, the_move):
-    start = Move(ttt, 0, ttt.p1, ttt.p2)
-
-    if (depth == max_depth):
-        chosen_score = evaluate(start)
-    else:
-        moves_list = successor(start)
-        if (moves_list == None):
-            chosen_score = evaluate(start)
-        else:
-            for i in moves_list:
-                best_score = []
-                new_board = copy.deepcopy(start)
-                apply_move(new_board, moves_list[i])
-                minimax_v2(new_board, depth+1, max_depth, the_score, the_move)
-                if (better(the_score, best_score)):
-                    best_score = the_score
-                    best_move = the_move
-
-            chosen_score = best_score;
-            chosen_move = best_move;
-
-    return chosen_score
-
-
-# http://www3.ntu.edu.sg/home/ehchua/programming/java/javagame_tictactoe_ai.html
-def minimax_v3(ttt, level, player):
-    start = Move(ttt, 0, ttt.p1, ttt.p2)
-
-    if (ttt.finished or level == 0):
-        bestScore = evaluate(start)
-        return [bestScore]
-
-    children = successor(start)
-
-    # player is computer, i.e., maximizing player
-    if (player == "O"):
-        # find max
-        bestScore = []
-        for child in children:
-            score = minimax_v3(ttt, level - 1, "X")
-            if (score > bestScore):
-                bestScore = score
-        return bestScore
-
-    # player is opponent, i.e., minimizing player
-    else:
-        # find min
-        bestScore = []
-        for child in children:
-            score = minimax_v3(ttt, level - 1, "O")
-            if (score < bestScore):
-                bestScore = score
-    return bestScore
-
-def minimax_v4(player):
+# Heurisitic minimax. Searches for the best of all possible moves each turn.
+def minimax_v2(ttt):
     if ttt.finished:
-        print("Score(ttt): ", score(ttt))
-        return score(ttt)
+        return -1
 
     start = Move(ttt, 0, ttt.p1, ttt.p2)
+
+    # Create a list of possible moves
     moves = successor(start)
-    scores = []
-    depth += 1
 
-    for move in moves:
-        possible_game = get_new_state(start, move, player)
-        #possible_game.printGame(possible_game)
-        value = minimax_v4(possible_game, depth, player)
-        scores.append(value)
-        moves.append(move)
+    # Determine the mins of each move
+    for m in moves:
+        print("Available move: ", m.position)
+        if (m.ttt.finished):
+            # Return a winning position
+            if m.ttt.winner == m.p1:
+                return m.position
 
-    scores.sort()
-    print("Possible moves are: ", moves)
-    print("Possible scores are: ", scores)
+            m.quality = evaluate(m)
+        else:
+            # Will check all possible moves    
+            responses = successor(m)
 
-    if player == start.ttt.p1:
-        # Max
-        print("Scores are: ", scores)
-        #max_score_index = scores[0]
-        #decision = moves[max_score_index]
-        #return scores[max_score_index]
+            for r in responses:
+                r.quality = evaluate(r)
+                
+            responses.sort()
+            print("Responses: ", responses)
+            m.quality = responses[0].quality
+
+
+    # Select the max of mins
+    moves.sort()
+    moves.reverse()
+    #print("Max of mins: ", moves[0].position)
+    return moves[0].position
+
+
+def fullMinimax(ttt, player):
+    new_ttt = copy.deepcopy(ttt)
+    start = Move(new_ttt, 0, new_ttt.p1, new_ttt.p2)
+
+    if new_ttt.testForWin(new_ttt.p1):
+        return (1,1)
+
+    elif new_ttt.testForWin(new_ttt.p2):
+        return (-1,-1)
+    
+    elif new_ttt.testBoardFull(new_ttt):
+        return (0,0)
+
+    # Create a list of possible moves
+    moves = successor(start)
+    bestMove = -1
+    bestScore = -1000
+
+    if player == new_ttt.p1:
+       
+        for m in moves:
+            new_ttt.printGame(new_ttt)
+            new_ttt.placeMove(new_ttt, m, player)
+            minimax = fullMinimax(new_ttt, new_ttt.p2)
+            new_ttt.printGame(new_ttt)
+
+
+            if bestScore < minimax[1]:
+                bestMove = m 
+                bestScore = minimax[1] 
+
+            new_ttt.removeMove(new_ttt, m)
 
     else:
-        scores.reverse()
-        #min_score_index = scores[0]
-        #decision = moves[min_score_index]
-        #return scores[min_score_index]
 
-def get_new_state(state, move, player):
-    copy_state = copy.deepcopy(state)
-    new_state = state.ttt.placeMove(copy_state.ttt, move.position, player)
-    return new_state
+        for m in moves:
+            new_ttt.printGame(new_ttt)
+            ttt.placeMove(new_ttt, m, player)
+            minimax = fullMinimax(new_ttt, new_ttt.p1)
+            new_ttt.printGame(new_ttt)
 
+            if bestScore > minimax[1]:
+                bestMove = m 
+                bestScore = minimax[1]
 
-
-
-
-
-
+            new_ttt.removeMove(new_ttt, m)
+    print("Best Score is: ", bestScore)
+    return (bestMove, bestScore)
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class FullMinimaxMachine():
-    def __init__(self, name):
-        # call constructor for parent class
-        name = self.name
-
-    def fullMinimax(self, board, player):
-        """
-        This function implements a minimax search that always goes to the very end
-        of the search tree. Only useful for games that don't have big search trees.
-        The function always returns a tuple: (<move>, <value>). <move> only matters
-        for the top node in the search tree, when the function is sending back which
-        move to make to the game.
-        """
+def locatedAtTerminalState(ttt, depth):
+        global DEPTH_LIMIT
         # Yay, we won!
-        if board.isWinner(self.name):
+        if ttt.testForWin(ttt.p1):
             # Return a positive number
-            return (1, 1)
+            return (True, 100)
         # Darn, we lost!
-        elif board.isWinner(self.opponent):
+        elif ttt.testForWin(ttt.p2):
             # Return a negative number
-            return (-1, -1)
+            return (True, -100)
         # if it's a draw,
-        elif (board.isBoardFull()):
+        elif (ttt.testBoardFull(ttt)):
             # return the value 0
-            return (0, 0)
+            return (True, 0)
+        # if we've hit our depth limit
+        elif (depth >= DEPTHLIMIT):
+            # use the evaluation function to return a value for this state
+            return (True, ttt.evaluateBoard())
+        return (False, 0)
+
+
+def partialMinimax(ttt, player, depth):
+        new_ttt = copy.deepcopy(ttt)
+        start = Move(new_ttt, 0, new_ttt.p1, new_ttt.p2)
+
+
+        # check to see if we are at a terminal state - someone won, the ttt is full or we hit our search limit
+        terminalTuple = locatedAtTerminalState(new_ttt, depth)
+        # if we are at a terminal state
+        if terminalTuple[0] == True:
+            # return the value of this state
+            return (0, terminalTuple[1])
         # get all open spaces
-        possibleMoves = board.possibleNextMoves()
+        possibleMoves = successor(start)
         # are we considering our move or our opponent's move
-        if self.name == player:
+        if new_ttt.p1 == player:
             # if it's our move, we want to find the move with the highest number, so start with low numbers
             bestMove = -1
             bestScore = -1000
             # loop through all possible moves
             for m in possibleMoves:
                 # make the move
-                board.makeMove(player, m)
+                new_ttt.placeMove(new_ttt, m, player)
                 # get the minimax vaue of the resulting state
-                minimax = self.fullMinimax(board, self.opponent)
+                minimax = partialMinimax(new_ttt, new_ttt.p2, depth+1)
                 # is this move better than any other moves we found?
                 if bestScore < minimax[1]:
                     # save the move...
@@ -259,7 +236,7 @@ class FullMinimaxMachine():
                     # and its score
                     bestScore = minimax[1]
                 # undo the move
-                board.clearSquare(m)
+                new_ttt.removeMove(new_ttt, m)
         else:
         # if it's our opponent's move, we want to find a low number, so start with big numbers
             bestMove = -1
@@ -267,9 +244,9 @@ class FullMinimaxMachine():
             # consider all possible moves
             for m in possibleMoves:
                 # make the move
-                board.makeMove(player, m)
+                new_ttt.placeMove(new_ttt, m, player)
                 # get the minimax vaue of the resulting state
-                minimax = self.fullMinimax(board, self.name)
+                minimax = partialMinimax(new_ttt, new_ttt.p1, depth+1)
                 # is this better (for our opponent) than any other moves we found?
                 if bestScore > minimax[1]:
                     # save the move...
@@ -277,9 +254,6 @@ class FullMinimaxMachine():
                     # and its score
                     bestScore = minimax[1]
                 # undo the move
-                board.clearSquare(m)
+                new_ttt.removeMove(new_ttt, m)
         # return the best move and best score we found for this state
         return (bestMove, bestScore)
-
-    def move(self, board):
-        return self.fullMinimax(board, self.name)[0]

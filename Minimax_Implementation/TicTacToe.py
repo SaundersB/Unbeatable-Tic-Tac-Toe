@@ -14,6 +14,7 @@
 # Computer will play as "O"
 # Please run this program with Python v2.7. This program does not fully support Python v3. 
 
+__author__ = 'bsaunders'
 
 
 
@@ -51,28 +52,38 @@ class TicTacToe:
 
 	# Make a move in a particular position.
 	def move(self, position):
+		#print("Moving to position: ", position)
 		# Check if move is possible
-		if self.finished or self.board[position] != None:
+		if position in range(0, 9):
+			if self.finished or self.board[position] != None:
+				return
+
+			# Update the game piece for both the game board and the displayed board.
+			self.board[position] = self.p1
+			self.board_pieces[position] = self.p1
+
+			self.testForWin(self.p1)
+			self.testBoardFull(self.board)
+
+			#self.switchPlayers()
+
+	def placeMove(self, ttt, move, player):
+		if ttt.board[move.position] != None:
 			return
 
-		# Update the game piece for both the game board and the displayed board.
-		self.board[position] = self.p1
-		self.board_pieces[position] = self.p1
+		ttt.board[move.position] = player
+		ttt.board_pieces[move.position] = player
 
-		self.testForWin(self.p1)
-		self.testBoardFull(self.board)
+		ttt.testForWin(player)
+		ttt.testBoardFull(ttt.board)
 
-		self.switchPlayers()
 
-	def placeMove(self, ttt, position, player):
-		if ttt.board[position] != None:
+	def removeMove(self, ttt, move):
+		if ttt.board[move.position] == None:
 			return
 
-		ttt.board[position] = player
-		ttt.board_pieces[position] = player
-
-		return ttt
-
+		ttt.board[move.position] = None
+		ttt.board_pieces[move.position] = ttt.getBoardIndex(move.position)
 
 
 	# Test if there is a win.
@@ -110,13 +121,12 @@ class TicTacToe:
 		self.p1, self.p2 = self.p2, self.p1
 
 	# Returns the number of ways a player can win.
-	def evaluateBoard(self, ttt):
+	def evaluateBoard(self):
 		number_or_threes = 0
 		# Check for a Win
 		for three in self.threes:
 			if self.inThree(self.p1, three) == 3:
 				number_or_threes += 1
-
 		return number_or_threes
 
 
@@ -143,7 +153,6 @@ def evaluate(move):
 	for three in move.ttt.threes:
 		value += (move.ttt.inThree(move.p2, three) == 0) # Threes without an opponent
 		value -= (move.ttt.inThree(move.p1, three) == 0) # Threes without the player
-	print("Value is: ", value)
 	return value
 
 def printGame(ttt):
@@ -156,18 +165,6 @@ def printGame(ttt):
 		print("\n", " ")
 
 
-
-def evaluate(move):
-	if move.ttt.finished:
-		if move.ttt.winner == move.p1:
-			return 9
-		elif move.ttt.winner == move.p2:
-			return -9
-	value = 0
-	for three in move.ttt.threes:
-		value += (move.ttt.inThree(move.p2, three) == 0) # Threes without an opponent
-		value -= (move.ttt.inThree(move.p1, three) == 0) # Threes without the player
-	return value
 
 
 def getSuccessor(ttt):
