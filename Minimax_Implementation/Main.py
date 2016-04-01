@@ -31,15 +31,14 @@ def gameMain(counter):
 		# Place player X's move on the game board.
 		ttt.move(board_position)
 
-		ttt.switchPlayers()
-
 		# Computer move "O"
 		print("Computer is making its move...")
 		time.sleep(1) # Simulate thinking
 
 		# Calculate the minimax of both players and select the best move for player O.
 		board_position = partialMinimax(ttt, "O", 0)[0]
-		print("O is moving to position: ", board_position)
+		score = partialMinimax(ttt, "O", 0)[1]
+		print("O is moving to position: ", board_position, " with score: ", score)
 		ttt.move(board_position)
 
 	# Present Results, increment the game statistics

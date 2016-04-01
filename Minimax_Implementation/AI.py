@@ -235,7 +235,7 @@ def partialMinimax(ttt, player, depth):
                     # and its score
                     bestScore = minimax[1]
                 # undo the move
-                new_ttt.removeMove(new_ttt, m)
+                new_ttt.removeMove(new_ttt, m.position)
         else:
         # if it's our opponent's move, we want to find a low number, so start with big numbers
             bestMove = -1
@@ -253,6 +253,6 @@ def partialMinimax(ttt, player, depth):
                     # and its score
                     bestScore = minimax[1]
                 # undo the move
-                new_ttt.removeMove(new_ttt, m)
+                new_ttt.removeMove(new_ttt, m.position)
         # return the best move and best score we found for this state
         return (bestMove.position, bestScore)
