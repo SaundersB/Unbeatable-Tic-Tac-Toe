@@ -1,8 +1,9 @@
-__author__ = 'bsaunders'
+from AI import *
+from TicTacToe import TicTacToe
 
 #!/bin/py
 # Brandon Saunders
-# 3/18/2016
+# 4/1/2016
 # Written in Python. This game will be an 'unbeatable' version of the classic Tic-Tac-Toe.
 # The human player will face off an 'unbeatable' computer player or alternatively the computer
 # can play the computer.
@@ -16,83 +17,65 @@ __author__ = 'bsaunders'
 # Computer will play as "O"
 # Please run this program with Python v2.7. This program does not fully support Python v3. 
 
-from TicTacToe import *
-from Move import Move
-import random
-from AI import Player
-from AI import Minimax
-
-def swapPlayer(current_player, player_1, player_2):
-	if (current_player is player_1):
-		return player_2
-	else:
-		return player_1
-
-
-def gameMain(counter):
-	global number_of_game_losses, number_of_game_wons, number_of_ties, total_number_of_games
-	counter += 1
-	ttt = TicTacToe()
-	player_1 = Player("X")
-	player_2 = Minimax(ttt, "O")
-	current_player = player_1
-
-	print("-----------Starting game------------")
-
-	# Game Loop
-	while not ttt.finished:
-		# Draw the game board.
-		ttt.printGame()
-
-		print("Current player is: ", current_player.playerName)
-
-		board_position = current_player.move(ttt)
-		position = int(board_position)
-		
-		ttt.placeMove(position, current_player.playerName)
-
-		ttt.testForWin(current_player.playerName)
-		ttt.testBoardFull()
-
-		current_player = swapPlayer(current_player, player_1, player_2)
-
-	# Present Results, increment the game statistics
-	if ttt.winner == "X":
-		print("You won!")
-		ttt.printGame()
-		number_of_game_losses += 1
-
-	elif ttt.winner == "O":
-		print("You Lost!")
-		ttt.printGame()
-		number_of_game_wons += 1
-
-	else:
-		print("It's a tie!")
-		ttt.printGame()
-		number_of_ties += 1
-
-	total_number_of_games += 1
-
-	print("Wins: ", number_of_game_losses)
-	print("Loses: ", number_of_game_wons)
-	print("Ties: ", number_of_ties)
-	print("Total Games: ", total_number_of_games)
-
-	print("------------Ending game-------------\n")
-
-	# Recursively restart the game
-	gameMain(counter)
-
 # Game Statistics
 number_of_game_losses = 0
-number_of_game_wons = 0
+number_of_game_wins = 0
 number_of_ties = 0
 total_number_of_games = 0
 counter = 0
 
-gameMain(counter)
+
+def switchPlayer(player, p1, p2):
+    if (player is p1):
+        return p2
+    else:
+        return p1
+
+def printGameStatistics():
+    global number_of_game_losses, number_of_game_wins, number_of_ties, total_number_of_games
+    print("------Game Statistics-------")
+    print("Wins: ", number_of_game_wins)
+    print("Loses: ", number_of_game_losses)
+    print("Ties: ", number_of_ties)
+    print("Total Games: ", total_number_of_games)
+    print("----------------------------")
+
+def main():
+    global number_of_game_losses, number_of_game_wins, number_of_ties, total_number_of_games
+    print("-----------Game Begin--------------")
+    total_number_of_games += 1
+    p1 = Player('X')
+    p2 = MiniMax('O')
+    ttt = TicTacToe(p1, p2)
+    player = p1
+    while (True):
+        ttt.printGame()
+        print("Your move, " + player.name)
+        move = player.move(ttt)
+        print("Playing move: ", move)
+        ttt.placeMove(move, player.name)
+        if ttt.testForWin(player.name):
+            ttt.printGame()
+            print(player.name + " won!")
+            if(player.name == "X"):
+                number_of_game_wins += 1
+            elif(player.name == "O"):
+                number_of_game_losses += 1
+            printGameStatistics()
+            print("-----------Game End--------------")
+            print("\n")
+            main()
+        elif ttt.testBoardFull():
+            ttt.printGame()
+            number_of_ties += 1
+            print('The game is a tie!')
+            printGameStatistics()
+            print("-----------Game End--------------")
+            print("\n")
+            main()
+        else:
+            player = switchPlayer(player, p1, p2)
 
 
-
-
+if __name__ == "__main__":
+    main()
