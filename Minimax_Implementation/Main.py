@@ -50,16 +50,16 @@ def main():
     player = p1
     while (True):
         ttt.printGame()
-        print("Your move, " + player.name)
+        print("Your move, " + player.player)
         move = player.move(ttt)
         print("Playing move: ", move)
-        ttt.placeMove(move, player.name)
-        if ttt.testForWin(player.name):
+        ttt.placeMove(move, player.player)
+        if ttt.testForWin(player.player):
             ttt.printGame()
-            print(player.name + " won!")
-            if(player.name == "X"):
+            print(player.player + " won!")
+            if(player.player == "X"):
                 number_of_game_wins += 1
-            elif(player.name == "O"):
+            elif(player.player == "O"):
                 number_of_game_losses += 1
             printGameStatistics()
             print("-----------Game End--------------")

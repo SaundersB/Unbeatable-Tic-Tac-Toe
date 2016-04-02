@@ -1,25 +1,23 @@
 import random
 
 class Player():
-    def __init__(self, myName):
-        self.name = myName
-        if myName == 'X':
+    def __init__(self, playerName):
+        self.player = playerName
+        if playerName == 'X':
             self.opponent = 'O'
         else:
             self.opponent = 'X'
 
     def move(self, ttt):
-        '''
         # Enable to input manual user moves.
         move = -1
         key = ""
-        while (int(move) not in range(0, 9)) or (not board.isSpaceFree(int(move))):
-            key = raw_input("Choose a square: ")
-            move = board.getBoardIndex(key)
-            print("You selected move: ", move)
-            return int(move)
-            '''
-        return self.enable_Random_Move(True, ttt)
+        key = raw_input("Choose a square: ")
+        move = ttt.getBoardIndex(key)
+        print("You selected move: ", move)
+        return int(move)
+        # Uncomment to enable randomized moves for player "X"
+        #return self.enable_Random_Move(True, ttt)
 
     # Convert the key to an int index.
     def getBoardIndex(self, position):
