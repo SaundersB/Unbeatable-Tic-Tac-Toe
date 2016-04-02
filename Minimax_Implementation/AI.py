@@ -55,6 +55,82 @@ class Minimax():
         else:
             self.opponent = 'X'
 
+
+    def inARow(self, ttt, le):
+        '''
+        This function counts the number of two-in-a-row combinations the player has,
+        either in a row, column or diagonally
+        '''
+        # create a tuple for each pair of squares that can be in a row
+        combos = [(0, 1), (1, 2), (0, 2),
+                  (3, 4), (4, 5), (3, 5),
+                  (6, 7), (7, 8), (6, 8),
+                  (0, 3), (3, 6), (0, 6),
+                  (1, 4), (4, 7), (1, 7),
+                  (2, 5), (5, 8), (2, 8),
+                  (0, 4), (4, 8), (0, 8),
+                  (2, 4), (4, 6), (2, 6)]
+        # we start with no squares in a row
+        count = 0
+        # for each of the pairs above...
+        for c in combos:
+            # if we have claimed both squares...
+            if (ttt[c[0]] == le and ttt[c[1]] == le):
+                # increase our count
+                count += 1
+        # return the total number of two-in-a-row pairs we have
+        return count
+
+    def cattyCorner(self, ttt, le):
+        '''
+        This function returns the number of "catty-corner" pairs the player has
+        '''
+        # create a tuple for each pair of catty-corner squares
+        combos = [(1, 3), (1, 5), (7, 3), (7, 5)]
+        # we start with no catty-corner squares
+        count = 0
+        # for each of the pairs above...
+        for c in combos:
+            # if we have claimed both squares...
+            if (ttt[c[0]] == le and ttt[c[1]] == le):
+                # increase our count
+                count += 1
+        # return the total number of catty-corner squares
+        return count
+
+    def haveCenter(self, ttt, le):
+        # if we have the center square...
+        if (ttt[4] == le):
+            # return 1
+            return 1
+        # otherwise, we don't have the center square...
+        else:
+            # so return 0
+            return 0
+
+    def evaluationFunction(self, ttt):
+        """
+        This function is used by minimax to evaluate a non-terminal state.
+        """
+        # start with a value of zero
+        score = 0
+        # add number of two-in-a-row pairs we have
+        score += 3 * self.inARow(ttt, self.playerName)
+        # subtract number of two-in-a-row pairs opponent has
+        score -= 3 * self.inARow(ttt, self.opponent)
+        # add number of catty-corner pairs we have
+        score += 2 * self.cattyCorner(ttt, self.playerName)
+        # subtract number of catty-corner pairs opponent has
+        score -= 2 * self.cattyCorner(ttt, self.opponent)
+        # add one if we have the center square
+        score += self.haveCenter(ttt, self.playerName)
+        # subtract one if opponent has center square
+        score -= self.haveCenter(ttt, self.opponent)
+        # return the evaluation score
+        return score
+
+
+
     def move(self, ttt):
          # Computer move "O"
         print("Computer is making its move...")
@@ -62,23 +138,24 @@ class Minimax():
         #time.sleep(1) # Simulate thinking
 
         #Alpha Beta Pruning
-        board_position = self.alphaBeta(ttt, self.playerName, 0, 2, -2)[0]
-        score = self.alphaBeta(ttt, self.playerName, 0, 2, -2)[1]
+        #board_position = self.alphaBeta(ttt, self.playerName, 0, 2, -2)[0]
+        #score = self.alphaBeta(ttt, self.playerName, 0, 2, -2)[1]
 
         # Partial Minimax
         # Calculate the minimax of both players and select the best move for player O.
-        #board_position = self.partialMinimax(ttt, self.playerName, 0)[0]
-        #score = self.partialMinimax(ttt, self.playerName, 0)[1]
+        board_position = self.partialMinimax(ttt, self.playerName, 0)[0]
+        score = self.partialMinimax(ttt, self.playerName, 0)[1]
 
         # Full Minimax
         # print("Player O using the full minimax algorithm...")
         #board_position = self.fullMinimax(ttt, self.playerName)[0]
         #score = self.fullMinimax(ttt, self.playerName)[1]
+
         if(isinstance(board_position, int)):
-            print("Move is: ", str(board_position))
+            print("(int) Move is: ", str(board_position))
             return board_position
         else: 
-            print("Move is: ", str(board_position.position))
+            print("(obj) Move is: ", str(board_position.position))
             return board_position.position
 
 
@@ -114,7 +191,7 @@ class Minimax():
                     # and its score
                     bestScore = minimax[1]
                 # undo the move
-                new_ttt.removeMove(new_ttt, m.position)
+                new_ttt.removeMove(m.position)
         else:
         # if it's our opponent's move, we want to find a low number, so start with big numbers
             bestMove = -1
@@ -132,7 +209,7 @@ class Minimax():
                     # and its score
                     bestScore = minimax[1]
                 # undo the move
-                new_ttt.removeMove(new_ttt, m.position)
+                new_ttt.removeMove(m.position)
         # return the best move and best score we found for this state
         return (bestMove, bestScore)
 
@@ -143,11 +220,11 @@ class Minimax():
         # Yay, we won!
         if ttt.testForWin(self.playerName):
             # Return a positive number
-            return (True, 10)
+            return (True, 100)
         # Darn, we lost!
         elif ttt.testForWin(self.opponent):
             # Return a negative number
-            return (True, -10)
+            return (True, -100)
         # if it's a draw,
         elif (ttt.testBoardFull()):
             # return the value 0
@@ -155,7 +232,7 @@ class Minimax():
         # if we've hit our depth limit
         elif (depth >= DEPTHLIMIT):
             # use the evaluation function to return a value for this state
-            return (True, ttt.evaluateBoard())
+            return (True, self.evaluationFunction(ttt.board))
         return (False, 0)
 
 
@@ -203,6 +280,7 @@ class Minimax():
                 new_ttt.removeMove(new_ttt, m.position)
 
         #print("Best Score is: ", bestScore)
+
         return (bestMove, bestScore)
 
 
@@ -269,6 +347,7 @@ class Minimax():
                     # If the value is less than beta abort the search for the current node
                     return (bestMove, bestScore)
         # return the best move and best score we found for this state
+
         return (bestMove, bestScore)
 
 
@@ -287,7 +366,7 @@ class Player():
             self.opponent = 'X'
 
     def move(self, ttt):        
-        
+        '''
         # Enable to allow user input.
         letter = raw_input("Where do you want to play? (a-i): ")
         board_position = ttt.getBoardIndex(letter)
@@ -295,8 +374,8 @@ class Player():
         print("Player X is taking their turn...")
         board_position = enable_Random_Move(True, ttt)
         print("X is moving to position: ", board_position.position)            
-        '''
-        return board_position
+       
+        return board_position.position
 
 # Either obtain the human players move or play the perfect minimax vs. minimax player.
 def enable_AI_vs_AI(enable, ttt):
