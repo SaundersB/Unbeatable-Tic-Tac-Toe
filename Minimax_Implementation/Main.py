@@ -24,7 +24,7 @@ number_of_ties = 0
 total_number_of_games = 0
 counter = 0
 
-
+# Swaps the player profiles.
 def switchPlayer(player, p1, p2):
     if (player is p1):
         return p2

@@ -1,10 +1,11 @@
 
 from Player import *
 
-
+# Minimax class that inherits the Player class.
+# Will go through all possible moves on the board for each player depending on
+# whether they're the maximizing player or the minimizing player.
 class MiniMax(Player):
     def __init__(self, player):
-        # Computer is a player as well.
         Player.__init__(self, player)
 
     def minimax(self, ttt, player):

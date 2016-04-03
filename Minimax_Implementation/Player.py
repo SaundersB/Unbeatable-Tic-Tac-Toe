@@ -1,5 +1,6 @@
 import random
 
+# Player class. Maintain the player profile is always mirror opposite for each other.
 class Player():
     def __init__(self, playerName):
         self.player = playerName
@@ -29,6 +30,8 @@ class Player():
             counter += 1
         return index
 
+    # Method to test the Minimax algorithm. If enabled will return a 
+    # random free move on the game board.
     def enable_Random_Move(self, enable, ttt):
         if(enable):
             possibleMoves = ttt.possibleNextMoves()
